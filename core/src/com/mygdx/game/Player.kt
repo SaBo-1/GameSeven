@@ -12,6 +12,8 @@ class Player (
     var experience: Int,
 ) {
 
+    val inventory = mutableListOf<Item>()
+
     // Anstatt Null Schaden kommt immer einer durch.
     fun attack (target: Player) {
         val damage = commonAttack - target.commonDefense

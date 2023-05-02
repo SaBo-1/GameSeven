@@ -2,25 +2,103 @@ package com.mygdx.game
 
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
+import kotlin.math.sqrt
 
-class MyInputProcessor(private val game: MyGdxGame) : InputProcessor {
-    private val playerSpeed = 20000f
+class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
+
+    // Hier kann die Spieler geschwindigkeit angepasst werden.
+    private val playerSpeed = 150f
+
+    // Boost oder Schub
+    private val boostFactor = 2f
+    private var isBoosting = false
+
+    // Speichert die gedrückten Tasten und ermöglicht ein seitwärts Bewegung.
+    private val pressedKeys = HashSet<Int>()
+
+    private fun updatePlayerMovement() {
+        var x = 0f
+        var y = 0f
+
+        //   Steuerung mit W, A, S, D und den Pfeiltasten.
+        if (pressedKeys.contains(Input.Keys.W)) y += playerSpeed
+        if (pressedKeys.contains(Input.Keys.UP)) y += playerSpeed
+
+        if (pressedKeys.contains(Input.Keys.A)) x -= playerSpeed
+        if (pressedKeys.contains(Input.Keys.LEFT)) x -= playerSpeed
+
+        if (pressedKeys.contains(Input.Keys.S)) y -= playerSpeed
+        if (pressedKeys.contains(Input.Keys.DOWN)) y -= playerSpeed
+
+        if (pressedKeys.contains(Input.Keys.D)) x += playerSpeed
+        if (pressedKeys.contains(Input.Keys.RIGHT)) x += playerSpeed
+
+        // Normalisiere die Geschwindigkeit, um eine gleichmäßige Geschwindigkeit in alle Richtungen zu gewährleisten
+        if (x != 0f && y != 0f) {
+            val length = sqrt(x * x + y * y)
+            x /= length
+            y /= length
+            x *= playerSpeed
+            y *= playerSpeed
+        }
+
+        // Boost anwenden
+        if (isBoosting) {
+            x *= boostFactor
+            y *= boostFactor
+        }
+
+        game.movePlayer(x, y)
+    }
 
     override fun keyDown(keycode: Int): Boolean {
-        when (keycode) {
-            Input.Keys.W -> game.movePlayer(0f, playerSpeed)
-            Input.Keys.A -> game.movePlayer(-playerSpeed, 0f)
-            Input.Keys.S -> game.movePlayer(0f, -playerSpeed)
-            Input.Keys.D -> game.movePlayer(playerSpeed, 0f)
-            Input.Keys.E -> game.openMenu()
+        if (keycode in listOf(
+                Input.Keys.W,
+                Input.Keys.A,
+                Input.Keys.S,
+                Input.Keys.D,
+                Input.Keys.UP,
+                Input.Keys.DOWN,
+                Input.Keys.LEFT,
+                Input.Keys.RIGHT,
+            )) {
+            pressedKeys.add(keycode)
+            updatePlayerMovement()
         }
+
+        if (keycode == Input.Keys.E) {
+            game.openMenu()
+        }
+
+        if (keycode == Input.Keys.SPACE) {
+            isBoosting = true
+            updatePlayerMovement()
+        }
+
+
         return true
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        when (keycode) {
-            Input.Keys.W, Input.Keys.A, Input.Keys.S, Input.Keys.D -> game.stopPlayerMovement()
+        if (keycode in listOf(
+                Input.Keys.W,
+                Input.Keys.A,
+                Input.Keys.S,
+                Input.Keys.D,
+                Input.Keys.UP,
+                Input.Keys.DOWN,
+                Input.Keys.LEFT,
+                Input.Keys.RIGHT,
+            )) {
+            pressedKeys.remove(keycode)
+            updatePlayerMovement()
         }
+
+        if (keycode == Input.Keys.SPACE) {
+            isBoosting = false
+            updatePlayerMovement()
+        }
+
         return false
     }
 
