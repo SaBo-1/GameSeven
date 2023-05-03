@@ -22,10 +22,10 @@ class GameSevenMain : ApplicationAdapter() {
     private lateinit var enemy3: Enemy
 
     // Startpunkt Einheiten
-    private var playerX = 300f
-    private var playerY = 300f
-    private var enemy1X = 200f
-    private var enemy1Y = 200f
+    private var playerX = 450f
+    private var playerY = 450f
+    private var enemy1X = 300f
+    private var enemy1Y = 300f
     private var enemy2X = 400f
     private var enemy2Y = 400f
     private var enemy3X = 600f
@@ -40,7 +40,7 @@ class GameSevenMain : ApplicationAdapter() {
         camera = OrthographicCamera()
         camera.setToOrtho(false, 800f, 480f)
 
-        img = Texture("map1.png")
+        img = Texture("map3.jpeg")
 
         val playerSpriteSheet = Texture("one.png")
         player = Player(playerSpriteSheet, 4,1,0.13f)
@@ -163,12 +163,35 @@ class GameSevenMain : ApplicationAdapter() {
 
     private fun updateEnemyPosition(enemy: Enemy, enemyX: Float, enemyY: Float, playerX: Float, playerY: Float): Pair<Float, Float> {
         println("UpdateEnemyAufruf")
+        if (enemy == enemy3) {
+            return updateEnemy3PatrolPosition(enemyX, enemyY)
+        }
         val direction = Vector2(playerX - enemyX, playerY - enemyY).nor()
-        var newX = enemyX + direction.x * enemy.moveSpeed * Gdx.graphics.deltaTime / 10
-        var newY = enemyY + direction.y * enemy.moveSpeed * Gdx.graphics.deltaTime / 10
+        var newX = enemyX + direction.x * enemy.moveSpeed * Gdx.graphics.deltaTime
+        var newY = enemyY + direction.y * enemy.moveSpeed * Gdx.graphics.deltaTime
 
         //  Debugging
         println("Gegner-Bewegungsrichtung: $direction, Geschwindigkeit: ${enemy.moveSpeed}, neue Position: ($newX, $newY)")
+
+        return Pair(newX, newY)
+    }
+
+    private val enemy3PatrolPoints = listOf(
+            Vector2(600f, 300f),
+            Vector2(700f, 300f)
+    )
+    private var enemy3CurrentPatrolPointIndex = 0
+
+    private fun updateEnemy3PatrolPosition(enemyX: Float, enemyY: Float): Pair<Float, Float> {
+        val currentPatrolPoint = enemy3PatrolPoints[enemy3CurrentPatrolPointIndex]
+        val direction = Vector2(currentPatrolPoint.x - enemyX, currentPatrolPoint.y - enemyY).nor()
+        var newX = enemyX + direction.x * enemy3.moveSpeed * Gdx.graphics.deltaTime
+        var newY = enemyY + direction.y * enemy3.moveSpeed * Gdx.graphics.deltaTime
+
+        val distanceToPatrolPoint = Vector2(newX - currentPatrolPoint.x, newY - currentPatrolPoint.y).len()
+        if (distanceToPatrolPoint <= 5f) { // Wenn der Gegner nahe genug am Patrouillenpunkt ist
+            enemy3CurrentPatrolPointIndex = (enemy3CurrentPatrolPointIndex + 1) % enemy3PatrolPoints.size // Wechsel zum nächsten Patrouillenpunkt
+        }
 
         return Pair(newX, newY)
     }
