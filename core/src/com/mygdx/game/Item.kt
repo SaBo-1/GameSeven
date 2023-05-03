@@ -1,12 +1,15 @@
 package com.mygdx.game
 
+import java.util.UUID
+
 class Item(
-    val name: String,
-    val type: ItemType,
-    val rarity: ItemRarity,
-    val statBoosts: Map<StatType, Float>,
-    val effects: List<Effect>,
-    // ...
+        val id: UUID = UUID.randomUUID(),
+        val name: String,
+        val type: ItemType,
+        val rarity: ItemRarity,
+        val statBoosts: Map<StatType, Float>,
+        val effects: List<Effect>,
+        // ...
 )
 
 enum class ItemType { WEAPON, ARMOR, POTION, ACCESSORY }

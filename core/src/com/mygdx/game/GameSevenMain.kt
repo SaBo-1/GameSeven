@@ -22,13 +22,13 @@ class GameSevenMain : ApplicationAdapter() {
     private lateinit var enemy3: Enemy
 
     // Startpunkt Einheiten
-    private var playerX = 250f
-    private var playerY = 250f
-    private var enemy1X = 100f
-    private var enemy1Y = 100f
-    private var enemy2X = 200f
-    private var enemy2Y = 200f
-    private var enemy3X = 300f
+    private var playerX = 300f
+    private var playerY = 300f
+    private var enemy1X = 200f
+    private var enemy1Y = 200f
+    private var enemy2X = 400f
+    private var enemy2Y = 400f
+    private var enemy3X = 600f
     private var enemy3Y = 300f
 
     private var playerStateTime = 0f
@@ -40,17 +40,17 @@ class GameSevenMain : ApplicationAdapter() {
         camera = OrthographicCamera()
         camera.setToOrtho(false, 800f, 480f)
 
-        img = Texture("background.png")
+        img = Texture("map1.png")
 
         val playerSpriteSheet = Texture("one.png")
         player = Player(playerSpriteSheet, 4,1,0.13f)
 
         enemyTexture1 = Texture("two.png")
         enemyTexture2 = Texture("drei.png")
-        enemyTexture3 = Texture("drei.png")
-        enemy1 = Enemy(enemyTexture1, 4, 1, 0.13f, moveSpeed = 1000f)
-        enemy2 = Enemy(enemyTexture2, 4, 1, 0.13f)
-        enemy3 = Enemy(enemyTexture3, 4, 1, 0.13f)
+        enemyTexture3 = Texture("vier.png")
+        enemy1 = Enemy(enemyTexture1, 4, 1, 0.13f, moveSpeed = 1000f, level = 3, lootTable = createSampleLootTable())
+        enemy2 = Enemy(enemyTexture2, 4, 1, 0.13f, moveSpeed = 100f, level = 2, lootTable = createSampleLootTable())
+        enemy3 = Enemy(enemyTexture3, 4, 1, 0.13f, moveSpeed = 0.1f, level = 1, lootTable = createSampleLootTable())
 
         //Steuerung
         Gdx.input.inputProcessor = MyInputProcessor(this)
@@ -143,16 +143,31 @@ class GameSevenMain : ApplicationAdapter() {
         println("Menü würde sich öffnen.")
     }
 
+    fun createSampleLootTable(): LootTable {
+        val commonItem = Item(name = "Common Item", type = ItemType.WEAPON, rarity = ItemRarity.COMMON, statBoosts = mapOf(), effects = listOf())
+        val rareItem = Item(name = "Rare Item", type = ItemType.ARMOR, rarity = ItemRarity.RARE, statBoosts = mapOf(), effects = listOf())
+        val legendaryItem = Item(name = "Legendary Item", type = ItemType.ACCESSORY, rarity = ItemRarity.LEGENDARY, statBoosts = mapOf(), effects = listOf())
+
+        val lootEntries = listOf(
+                LootEntry(commonItem, weight = 80),
+                LootEntry(rareItem, weight = 15),
+                LootEntry(legendaryItem, weight = 5)
+        )
+
+        return LootTable(lootEntries)
+    }
+
     fun movePlayer(x: Float, y: Float) {
         playerVelocity.set(x * player.moveSpeed, y * player.moveSpeed)
     }
 
     private fun updateEnemyPosition(enemy: Enemy, enemyX: Float, enemyY: Float, playerX: Float, playerY: Float): Pair<Float, Float> {
+        println("UpdateEnemyAufruf")
         val direction = Vector2(playerX - enemyX, playerY - enemyY).nor()
-        val newX = enemyX + direction.x * enemy.moveSpeed * Gdx.graphics.deltaTime
-        val newY = enemyY + direction.y * enemy.moveSpeed * Gdx.graphics.deltaTime
+        var newX = enemyX + direction.x * enemy.moveSpeed * Gdx.graphics.deltaTime / 10
+        var newY = enemyY + direction.y * enemy.moveSpeed * Gdx.graphics.deltaTime / 10
 
-        // Füge Debugging-Informationen hinzu, um die Bewegung der Gegner zu überprüfen
+        //  Debugging
         println("Gegner-Bewegungsrichtung: $direction, Geschwindigkeit: ${enemy.moveSpeed}, neue Position: ($newX, $newY)")
 
         return Pair(newX, newY)

@@ -6,18 +6,19 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 
 class Enemy(
-    texture: Texture,
-    frameCols: Int,
-    frameRows: Int,
-    animationDuration: Float,
-    val level: Int = 1,
-    var moveSpeed: Float = 0.001f,
+        texture: Texture,
+        frameCols: Int,
+        frameRows: Int,
+        animationDuration: Float,
+        val level: Int,
+        var moveSpeed: Float,
+        val lootTable: LootTable
 ) {
     val animation: Animation<TextureRegion>
 
     val collisionBox = Rectangle()
 
-    // Hinzugefügte Attribute
+    //        Level Berechnung
     var hitPoints: Int = level * 20 // 20 Lebenspunkte pro Level
     var attack: Int = level * 2 // 2 Angriffspunkte pro Level
     var defense: Int = level * 1 // 1 Verteidigungspunkt pro Level
@@ -27,7 +28,7 @@ class Enemy(
         val frames = tmp.flatten()
         animation = Animation(animationDuration, *frames.toTypedArray())
 
-        moveSpeed = level * 1f // 10 Bewegungsgeschwindigkeit pro Level
+        moveSpeed = level * 1f // 1 Bewegungsgeschwindigkeit pro Level
     }
 
     fun takeDamage(damage: Int) {
@@ -40,5 +41,15 @@ class Enemy(
 
     fun isDead(): Boolean {
         return hitPoints <= 0
+        dropItem()
+    }
+
+    //
+    fun dropItem(): Item? {
+        return if (isDead()) {
+            lootTable.roll()
+        } else {
+            null
+        }
     }
 }
