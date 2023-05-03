@@ -45,10 +45,10 @@ class GameSevenMain : ApplicationAdapter() {
         val playerSpriteSheet = Texture("one.png")
         player = Player(playerSpriteSheet, 4,1,0.13f)
 
-        enemyTexture1 = Texture("one.png")
-        enemyTexture2 = Texture("one.png")
-        enemyTexture3 = Texture("one.png")
-        enemy1 = Enemy(enemyTexture1, 4, 1, 0.13f)
+        enemyTexture1 = Texture("two.png")
+        enemyTexture2 = Texture("drei.png")
+        enemyTexture3 = Texture("drei.png")
+        enemy1 = Enemy(enemyTexture1, 4, 1, 0.13f, moveSpeed = 1000f)
         enemy2 = Enemy(enemyTexture2, 4, 1, 0.13f)
         enemy3 = Enemy(enemyTexture3, 4, 1, 0.13f)
 
@@ -87,22 +87,34 @@ class GameSevenMain : ApplicationAdapter() {
 
     player.collisionBox.set(playerX + offsetX, playerY + offsetY, boxWidth, boxHeight)
 
-    //player.collisionBox.set(playerX, playerY, currentFrame.regionWidth.toFloat(), currentFrame.regionHeight.toFloat())
-    enemy1.collisionBox.set(enemy1X, enemy1Y, enemy1Frame.regionWidth.toFloat(), enemy1Frame.regionHeight.toFloat())
-    enemy2.collisionBox.set(enemy2X, enemy2Y, enemy2Frame.regionWidth.toFloat(), enemy2Frame.regionHeight.toFloat())
-    enemy3.collisionBox.set(enemy3X, enemy3Y, enemy3Frame.regionWidth.toFloat(), enemy3Frame.regionHeight.toFloat())
+    // Aktualisiere die Position der Gegner
+    val (newEnemy1X, newEnemy1Y) = updateEnemyPosition(enemy1, enemy1X, enemy1Y, playerX, playerY)
+    val (newEnemy2X, newEnemy2Y) = updateEnemyPosition(enemy2, enemy2X, enemy2Y, playerX, playerY)
+    val (newEnemy3X, newEnemy3Y) = updateEnemyPosition(enemy3, enemy3X, enemy3Y, playerX, playerY)
+
+    // Aktualisiere die Kollisionsboxen der Gegner
+    enemy1.collisionBox.set(newEnemy1X, newEnemy1Y, enemy1Frame.regionWidth.toFloat(), enemy1Frame.regionHeight.toFloat())
+    enemy2.collisionBox.set(newEnemy2X, newEnemy2Y, enemy2Frame.regionWidth.toFloat(), enemy2Frame.regionHeight.toFloat())
+    enemy3.collisionBox.set(newEnemy3X, newEnemy3Y, enemy3Frame.regionWidth.toFloat(), enemy3Frame.regionHeight.toFloat())
 
     // Kollisionserkennung
-    if (player.collisionBox.overlaps(enemy1.collisionBox) ||
-        player.collisionBox.overlaps(enemy2.collisionBox) ||
-        player.collisionBox.overlaps(enemy3.collisionBox)
-    ) {
+    val collidedWithEnemy1 = player.collisionBox.overlaps(enemy1.collisionBox)
+    val collidedWithEnemy2 = player.collisionBox.overlaps(enemy2.collisionBox)
+    val collidedWithEnemy3 = player.collisionBox.overlaps(enemy3.collisionBox)
+
+    if (collidedWithEnemy1 || collidedWithEnemy2 || collidedWithEnemy3) {
         // Kollision aufgetreten, führen Sie entsprechende Aktionen aus
         println("Kollision erkannt!")
+
         // Setze die Spielerposition zurück
         playerX = oldPlayerX
         playerY = oldPlayerY
         player.collisionBox.setPosition(playerX, playerY)
+
+        // Füge dem Spieler Schaden zu
+        val damage = if (collidedWithEnemy1) enemy1.attack else if (collidedWithEnemy2) enemy2.attack else enemy3.attack
+        player.takeDamage(damage)
+        println("Spieler hat Schaden erlitten. Aktuelle Lebenspunkte: ${player.hitPoints}")
     }
 
     ScreenUtils.clear(1f, 0f, 0f, 1f)
@@ -112,13 +124,12 @@ class GameSevenMain : ApplicationAdapter() {
 
     batch.begin()
     batch.draw(img, 0f, 0f, 1400f, 900f)
-    batch.draw(enemy1Frame, enemy1X, enemy1Y, enemy1Frame.regionWidth.toFloat(), enemy1Frame.regionHeight.toFloat())
-    batch.draw(enemy2Frame, enemy2X, enemy2Y, enemy2Frame.regionWidth.toFloat(), enemy2Frame.regionHeight.toFloat())
-    batch.draw(enemy3Frame, enemy3X, enemy3Y, enemy3Frame.regionWidth.toFloat(), enemy3Frame.regionHeight.toFloat())
+    batch.draw(enemy1Frame, newEnemy1X, newEnemy1Y, enemy1Frame.regionWidth.toFloat(), enemy1Frame.regionHeight.toFloat())
+    batch.draw(enemy2Frame, newEnemy2X, newEnemy2Y, enemy2Frame.regionWidth.toFloat(), enemy2Frame.regionHeight.toFloat())
+    batch.draw(enemy3Frame, newEnemy3X, newEnemy3Y, enemy3Frame.regionWidth.toFloat(), enemy3Frame.regionHeight.toFloat())
     batch.draw(currentFrame, playerX, playerY, currentFrame.regionWidth.toFloat(), currentFrame.regionHeight.toFloat()) // Zeichne den aktuellen Frame an der Spielerposition
     batch.end()
 }
-
 
     override fun dispose() {
         batch.dispose()
@@ -133,7 +144,17 @@ class GameSevenMain : ApplicationAdapter() {
     }
 
     fun movePlayer(x: Float, y: Float) {
-        playerVelocity.set(x, y)
+        playerVelocity.set(x * player.moveSpeed, y * player.moveSpeed)
     }
 
+    private fun updateEnemyPosition(enemy: Enemy, enemyX: Float, enemyY: Float, playerX: Float, playerY: Float): Pair<Float, Float> {
+        val direction = Vector2(playerX - enemyX, playerY - enemyY).nor()
+        val newX = enemyX + direction.x * enemy.moveSpeed * Gdx.graphics.deltaTime
+        val newY = enemyY + direction.y * enemy.moveSpeed * Gdx.graphics.deltaTime
+
+        // Füge Debugging-Informationen hinzu, um die Bewegung der Gegner zu überprüfen
+        println("Gegner-Bewegungsrichtung: $direction, Geschwindigkeit: ${enemy.moveSpeed}, neue Position: ($newX, $newY)")
+
+        return Pair(newX, newY)
+    }
 }
