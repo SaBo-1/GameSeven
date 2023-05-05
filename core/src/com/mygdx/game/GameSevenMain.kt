@@ -40,7 +40,7 @@ class GameSevenMain : ApplicationAdapter() {
         camera = OrthographicCamera()
         camera.setToOrtho(false, 800f, 480f)
 
-        img = Texture("map3.jpeg")
+        img = Texture("artwork.png")
 
         val playerSpriteSheet = Texture("one.png")
         player = Player(playerSpriteSheet, 4,1,0.13f)
