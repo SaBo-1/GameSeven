@@ -7,13 +7,16 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.Vector3
+import java.awt.Color
 
 class GameSevenMain : ApplicationAdapter() {
     private lateinit var batch: SpriteBatch
     private lateinit var img: Texture
     private lateinit var camera: OrthographicCamera
     private lateinit var player: Player
-
+    private lateinit var crosshairTexture: Texture
     private lateinit var enemyTexture1: Texture
     private lateinit var enemy1: Enemy
 
@@ -34,17 +37,17 @@ class GameSevenMain : ApplicationAdapter() {
         camera.setToOrtho(false, 800f, 480f)
 
         img = Texture("artwork.png")
-
+        crosshairTexture = Texture("crosshair.png")
         val playerSpriteSheet = Texture("one.png")
         player = Player(playerSpriteSheet, 4,1,0.13f)
 
         val enemyTexture1 = Texture("two.png")
-        enemy1 = Enemy(enemyTexture1, 4, 1, 0.13f, moveSpeed = 1000f, level = 3, lootTable = createSampleLootTable())
+        enemy1 = Enemy(enemyTexture1, 4, 1, 0.13f, moveSpeed = 1f, level = 10, lootTable = createSampleLootTable())
         //Steuerung
         Gdx.input.inputProcessor = MyInputProcessor(this)
     }
 
-//-----------------------------------------------------------
+//--------------------------------------------------------
     override fun render() {
     super.render()
 
@@ -100,16 +103,21 @@ class GameSevenMain : ApplicationAdapter() {
 
     ScreenUtils.clear(1f, 0f, 0f, 1f)
 
+    val mousePos = Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f)
+    camera.unproject(mousePos)
+
     // Rendern Sie Ihre Spielobjekte
     batch.projectionMatrix = camera.combined
 
     batch.begin()
     batch.draw(img, 0f, 0f, 1400f, 900f)
     batch.draw(enemy1Frame, newEnemy1X, newEnemy1Y, enemy1Frame.regionWidth.toFloat(), enemy1Frame.regionHeight.toFloat())
-    batch.draw(currentFrame, playerX, playerY, currentFrame.regionWidth.toFloat(), currentFrame.regionHeight.toFloat()) // Zeichne den aktuellen Frame an der Spielerposition
+    batch.draw(currentFrame, playerX, playerY, currentFrame.regionWidth.toFloat(), currentFrame.regionHeight.toFloat())
+    batch.draw(crosshairTexture, mousePos.x - crosshairTexture.width / 2, mousePos.y - crosshairTexture.height / 2)
     batch.end()
 }
 
+//--------------------------------------------------------
     override fun dispose() {
         batch.dispose()
         img.dispose()
@@ -149,4 +157,9 @@ class GameSevenMain : ApplicationAdapter() {
         return Pair(newEnemyX, newEnemyY)
     }
 
+    fun getMouseWorldPosition(): Vector2 {
+        val mousePos = Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f)
+        camera.unproject(mousePos)
+        return Vector2(mousePos.x, mousePos.y)
+    }
 }

@@ -28,7 +28,7 @@ class Enemy(
         val frames = tmp.flatten()
         animation = Animation(animationDuration, *frames.toTypedArray())
 
-        moveSpeed = level * 1f // 1 Bewegungsgeschwindigkeit pro Level
+        moveSpeed = level * 1.05f // 1 Bewegungsgeschwindigkeit pro Level
     }
 
     fun takeDamage(damage: Int) {
