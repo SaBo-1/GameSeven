@@ -2,7 +2,7 @@ package com.mygdx.game
 
 import java.util.UUID
 
-class Item(
+open class Item(
         val id: UUID = UUID.randomUUID(),
         val name: String,
         val type: ItemType,
