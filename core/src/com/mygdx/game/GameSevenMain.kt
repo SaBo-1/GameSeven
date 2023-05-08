@@ -19,10 +19,12 @@ class GameSevenMain : ApplicationAdapter() {
     private lateinit var crosshairTexture: Texture
     private lateinit var enemyTexture1: Texture
     private lateinit var enemy1: Enemy
+    lateinit var bulletTexture: Texture
+    val projectiles = mutableListOf<Projectile>()
 
     // Startpunkt Einheiten
-    private var playerX = 450f
-    private var playerY = 450f
+    var playerX = 450f
+    var playerY = 450f
     private var enemy1X = 300f
     private var enemy1Y = 300f
 
@@ -37,6 +39,7 @@ class GameSevenMain : ApplicationAdapter() {
         camera.setToOrtho(false, 800f, 480f)
 
         img = Texture("artwork.png")
+        bulletTexture = Texture("greenbullet.png")
         crosshairTexture = Texture("crosshair.png")
         val playerSpriteSheet = Texture("one.png")
         player = Player(playerSpriteSheet, 4,1,0.13f)
@@ -106,6 +109,18 @@ class GameSevenMain : ApplicationAdapter() {
     val mousePos = Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f)
     camera.unproject(mousePos)
 
+    // Aktualisieren der Projektile
+    val iterator = projectiles.iterator()
+    while (iterator.hasNext()) {
+        val projectile = iterator.next()
+        projectile.update(Gdx.graphics.deltaTime)
+
+        // Entfernen der Projektile, die außerhalb des Bildschirms sind (optional)
+        if (projectile.position.x < 0 || projectile.position.x > 1400 || projectile.position.y < 0 || projectile.position.y > 900) {
+            iterator.remove()
+        }
+    }
+
     // Rendern Sie Ihre Spielobjekte
     batch.projectionMatrix = camera.combined
 
@@ -114,6 +129,10 @@ class GameSevenMain : ApplicationAdapter() {
     batch.draw(enemy1Frame, newEnemy1X, newEnemy1Y, enemy1Frame.regionWidth.toFloat(), enemy1Frame.regionHeight.toFloat())
     batch.draw(currentFrame, playerX, playerY, currentFrame.regionWidth.toFloat(), currentFrame.regionHeight.toFloat())
     batch.draw(crosshairTexture, mousePos.x - crosshairTexture.width / 2, mousePos.y - crosshairTexture.height / 2)
+    projectiles.forEach { projectile ->
+        val frame = projectile.animation.getKeyFrame(playerStateTime, true)
+        batch.draw(frame, projectile.position.x, projectile.position.y)
+    }
     batch.end()
 }
 

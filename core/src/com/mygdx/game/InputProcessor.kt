@@ -2,6 +2,7 @@ package com.mygdx.game
 
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.math.Vector2
 import kotlin.math.sqrt
 
 class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
@@ -106,9 +107,6 @@ class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
         return false
     }
 
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
-    }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         return false
@@ -123,6 +121,30 @@ class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
     }
 
     override fun scrolled(amountX: Float, amountY: Float): Boolean {
+        return false
+    }
+
+    private fun shootProjectile() {
+        val playerPosition = Vector2(game.playerX, game.playerY)
+        val mousePosition = game.getMouseWorldPosition()
+        val direction = mousePosition.sub(playerPosition).nor()
+        val bulletSpeed = 500f
+
+        val projectile = Projectile(
+            game.bulletTexture,
+            frameCols = 10,
+            frameRows = 1,
+            animationDuration = 0.05f,
+            position = playerPosition.cpy(),
+            velocity = direction.scl(bulletSpeed)
+        )
+        game.projectiles.add(projectile)
+    }
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        if (button == Input.Buttons.LEFT) {
+            shootProjectile()
+        }
         return false
     }
 }
