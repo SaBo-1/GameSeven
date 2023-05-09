@@ -136,7 +136,8 @@ class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
             frameRows = 1,
             animationDuration = 0.05f,
             position = playerPosition.cpy(),
-            velocity = direction.scl(bulletSpeed)
+            velocity = direction.scl(bulletSpeed),
+            damage = 10
         )
         game.projectiles.add(projectile)
     }

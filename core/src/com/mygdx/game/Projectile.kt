@@ -12,7 +12,8 @@ class Projectile(
     frameRows: Int,
     animationDuration: Float,
     val position: Vector2,
-    val velocity: Vector2
+    val velocity: Vector2,
+    val damage: Int = 10,
 ) {
     val animation: Animation<TextureRegion>
     val collisionBox = Rectangle()

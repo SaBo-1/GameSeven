@@ -12,7 +12,7 @@ class Enemy(
         animationDuration: Float,
         val level: Int,
         var moveSpeed: Float,
-        val lootTable: LootTable
+        val lootTable: LootTable,
 ) {
     val animation: Animation<TextureRegion>
 
@@ -41,10 +41,8 @@ class Enemy(
 
     fun isDead(): Boolean {
         return hitPoints <= 0
-        dropItem()
     }
 
-    //
     fun dropItem(): Item? {
         return if (isDead()) {
             lootTable.roll()

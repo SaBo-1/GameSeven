@@ -115,9 +115,32 @@ class GameSevenMain : ApplicationAdapter() {
         val projectile = iterator.next()
         projectile.update(Gdx.graphics.deltaTime)
 
-        // Entfernen der Projektile, die außerhalb des Bildschirms sind (optional)
-        if (projectile.position.x < 0 || projectile.position.x > 1400 || projectile.position.y < 0 || projectile.position.y > 900) {
-            iterator.remove()
+        // Kollisionserkennung zwischen Projektil und Feind
+        if (projectile.collisionBox.overlaps(enemy1.collisionBox)) {
+            enemy1.hitPoints -= projectile.damage // Füge dem Feind Schaden zu
+            iterator.remove() // Entferne das Projektil
+            println("Feind getroffen! Verbleibende Gesundheit: ${enemy1.hitPoints}")
+
+            if (enemy1.isDead()) {
+                // Führen Sie die gewünschten Aktionen aus, wenn der Feind tot ist
+                println("Feind ist tot!")
+                val loot = enemy1.dropItem()
+                if (loot != null) {
+                    println("Feind hat ${loot.name} fallen gelassen.")
+                } else {
+                    println("Feind hat kein Item fallen gelassen.")
+                }
+                // Entfernen Sie den Feind aus dem Spiel (z.B. durch Setzen seiner Position außerhalb des Bildschirms oder Entfernen aus der Liste der aktiven Feinde)
+                // Hier wird die Position des Feindes außerhalb des Bildschirms gesetzt, als Beispiel:
+                enemy1X = -1000f
+                enemy1Y = -1000f
+                enemy1.collisionBox.setPosition(enemy1X, enemy1Y)
+            }
+        } else {
+            // Entfernen der Projektile, die außerhalb des Bildschirms sind (optional)
+            if (projectile.position.x < 0 || projectile.position.x > 1400 || projectile.position.y < 0 || projectile.position.y > 900) {
+                iterator.remove()
+            }
         }
     }
 
