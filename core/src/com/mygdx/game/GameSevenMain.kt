@@ -131,7 +131,7 @@ class GameSevenMain : ApplicationAdapter() {
                     println("Feind hat kein Item fallen gelassen.")
                 }
                 // Entfernen Sie den Feind aus dem Spiel (z.B. durch Setzen seiner Position außerhalb des Bildschirms oder Entfernen aus der Liste der aktiven Feinde)
-                // Hier wird die Position des Feindes außerhalb des Bildschirms gesetzt, als Beispiel:
+                // hier wird die Position des Feindes außerhalb des Bildschirms gesetzt, als Beispiel:
                 enemy1X = -1000f
                 enemy1Y = -1000f
                 enemy1.collisionBox.setPosition(enemy1X, enemy1Y)
