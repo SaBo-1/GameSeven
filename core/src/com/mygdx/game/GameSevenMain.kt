@@ -22,7 +22,7 @@ class GameSevenMain : ApplicationAdapter() {
     private lateinit var crosshairTexture: Texture // Das Fadenkreuz
     private lateinit var enemyTexture1: Texture // Die erste Gegner-Textur.
     private lateinit var enemy1: Enemy // erstellt den ersten Gegner
-    private lateinit var bulletTexture: Texture // Die grüne Kugel Textur wird erstellt
+    lateinit var bulletTexture: Texture // Die grüne Kugel Textur wird erstellt
     private lateinit var chestTexture: Texture // Die Aktuellen Gems später Truhen Textur
 
     // Die veränderbaren Listen von Truhe und fern Attacken

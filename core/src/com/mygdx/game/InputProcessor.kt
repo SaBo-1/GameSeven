@@ -37,7 +37,7 @@ class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
         if (pressedKeys.contains(Input.Keys.D)) x += playerSpeed
         if (pressedKeys.contains(Input.Keys.RIGHT)) x += playerSpeed
 
-        // Normalisiere die Geschwindigkeit, um eine gleichmäßige Geschwindigkeit in alle Richtungen zu gewährleisten
+        // Normalisiere die Geschwindigkeit, um eine gleichmäßige Geschwindigkeit in alle Richtungen zu gewährleisten.
         // sieht Komisch aus funktioniert aber^^
         if (x != 0f && y != 0f) {
             val length = sqrt(x * x + y * y)
