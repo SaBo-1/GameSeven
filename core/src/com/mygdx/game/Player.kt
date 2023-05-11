@@ -13,14 +13,14 @@ class Player(texture: Texture, frameCols: Int, frameRows: Int, animationDuration
     val collisionBox = Rectangle()
 
     // Vorhandene Attribute
-    var level: Int = 1 // Start Level
+    private var level: Int = 1 // Start Level
     var hitPoints: Int = 100 // Lebenspunkte auf Level eins
-    var attack: Int = 10 // Damage
+    private var attack: Int = 10 // Damage
     var defense: Int = 5 // Verteidigungswert
-    var experience: Int = 0 // Erfahrung startet mit 0
-    val maxLevel: Int = 100 // Level grenze
-    var initiative: Float = 1.0f // Init wert wird durch Item erhöht
-    var baseMoveSpeed: Float = 1f // Basisbewegungsgeschwindigkeit
+    private var experience: Int = 0 // Erfahrung startet mit 0
+    private val maxLevel: Int = 100 // Level grenze
+    private var initiative: Float = 1.0f // Init wert wird durch Item erhöht
+    private var baseMoveSpeed: Float = 1f // Basisbewegungsgeschwindigkeit
     val moveSpeed: Float
         get() = baseMoveSpeed * initiative
 

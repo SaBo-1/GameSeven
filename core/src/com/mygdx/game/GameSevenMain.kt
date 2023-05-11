@@ -27,7 +27,7 @@ class GameSevenMain : ApplicationAdapter() {
 
     // Die veränderbaren Listen von Truhe und fern Attacken
     val projectiles = mutableListOf<Projectile>()
-    val chests = mutableListOf<Chest>()
+    private val chests = mutableListOf<Chest>()
 
     // Shake it Baby, lässt bei treffern die Kamera wackeln
     private var shakeDuration = 0f
@@ -117,6 +117,7 @@ class GameSevenMain : ApplicationAdapter() {
     if (collidedWithEnemy1) {
         // Kollision aufgetreten, führen Sie entsprechende Aktionen aus
         println("Kollision erkannt!")
+        player.takeDamage(10)
 
         // Setze die Spielerposition zurück
         playerX = oldPlayerX
