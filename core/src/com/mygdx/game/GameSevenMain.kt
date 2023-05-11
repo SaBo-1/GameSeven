@@ -7,9 +7,8 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
-import java.awt.Color
 
 class GameSevenMain : ApplicationAdapter() {
     private lateinit var batch: SpriteBatch
@@ -23,6 +22,11 @@ class GameSevenMain : ApplicationAdapter() {
     val projectiles = mutableListOf<Projectile>()
     private lateinit var chestTexture: Texture
     val chests = mutableListOf<Chest>()
+    // Variablen für Kamera-Shake
+    private var shakeDuration = 0f
+    private val shakeDurationMax = 0.5f
+    private val shakeIntensity = 10f
+    private var shakingCamera = false
 
     // Startpunkt Einheiten
     var playerX = 450f
@@ -75,27 +79,21 @@ class GameSevenMain : ApplicationAdapter() {
     val enemy1Frame = enemy1.animation.getKeyFrame(playerStateTime, true)
 
     // Aktualisiere die Positionen der Kollisionsboxen
-    val boxWidth = currentFrame.regionWidth * 0.2f  // 30 % der Sprite-Breite
-    val boxHeight = currentFrame.regionHeight * 0.2f  // 30 % der Sprite-Höhe
-    val offsetX = (currentFrame.regionWidth - boxWidth) / 2f  // X-Offset, um die Box horizontal zu zentrieren
-    val offsetY = (currentFrame.regionHeight - boxHeight) / 2f  // Y-Offset, um die Box vertikal zu zentrieren
+    val boxWidth = currentFrame.regionWidth * 0.2f  // 20 % der Sprite-Breite
+    val boxHeight = currentFrame.regionHeight * 0.2f  // 20 % der Sprite-Höhe
+    val offsetX = (currentFrame.regionWidth - boxWidth) / 2f  // Box horizontal zu zentrieren
+    val offsetY = (currentFrame.regionHeight - boxHeight) / 2f  // Box vertikal zu zentrieren
 
     player.collisionBox.set(playerX + offsetX, playerY + offsetY, boxWidth, boxHeight)
 
-    // Aktualisiere die Position der Gegner
+    // Aktualisiere die Position und die Kollisionsbox des Gegners
     val (newEnemy1X, newEnemy1Y) = updateEnemyPosition(enemy1, enemy1X, enemy1Y, playerX, playerY)
-
-    // Aktualisiere enemy1X und enemy1Y mit den neuen berechneten Positionen
     enemy1X = newEnemy1X
     enemy1Y = newEnemy1Y
-
-    // Aktualisiere die Kollisionsboxen der Gegner
     enemy1.collisionBox.set(newEnemy1X, newEnemy1Y, enemy1Frame.regionWidth.toFloat(), enemy1Frame.regionHeight.toFloat())
 
-    // Kollisionserkennung
+    // Kollisionserkennung mit dem Enemy
     val collidedWithEnemy1 = player.collisionBox.overlaps(enemy1.collisionBox)
-
-
     if (collidedWithEnemy1) {
         // Kollision aufgetreten, führen Sie entsprechende Aktionen aus
         println("Kollision erkannt!")
@@ -105,9 +103,56 @@ class GameSevenMain : ApplicationAdapter() {
         playerY = oldPlayerY
         player.collisionBox.setPosition(playerX, playerY)
 
+        // Berechne die Rückstoßrichtung
+        val knockbackDirection = Vector2(playerX - enemy1X, playerY - enemy1Y).nor()
+
+        // Multipliziere die Richtung mit der gewünschten Rückstoßstärke
+        val knockbackStrength = 50f
+        val knockback = Vector2(knockbackDirection.x * knockbackStrength, knockbackDirection.y * knockbackStrength)
+
+        // Aktualisiere die Position des Feindes
+        enemy1X += knockback.x
+        enemy1Y += knockback.y
+        enemy1.collisionBox.setPosition(enemy1X, enemy1Y)
+
+        // Aktiviere Kamera-Shake
+        shakingCamera = true
+        shakeDuration = shakeDurationMax
+
+        // Füge dem Spieler Schaden zu
+        val damageToPlayer = enemy1.attack - player.defense
+        player.takeDamage(damageToPlayer)
+        println("Spieler hat Schaden erhalten! Verbleibende Gesundheit: ${player.hitPoints}")
+
+        if (player.hitPoints <= 0) {
+            // Führen Sie die gewünschten Aktionen aus, wenn der Spieler tot ist
+            println("Spieler ist tot!")
+        }
+
     }
 
-    // Check collision with chests
+    // Schüttelt die Kamera
+    if (shakingCamera) {
+        // Reduziere die verbleibende Shake-Dauer
+        shakeDuration -= Gdx.graphics.deltaTime
+
+        // Berechne eine zufällige Verschiebung für die Kamera basierend auf der Shake-Intensität
+        val randomX = MathUtils.random(-shakeIntensity, shakeIntensity)
+        val randomY = MathUtils.random(-shakeIntensity, shakeIntensity)
+
+        // Wende die Verschiebung auf die Kamera an
+        camera.position.x += randomX
+        camera.position.y += randomY
+
+        // Beende den Kamera-Shake, wenn die Dauer abgelaufen ist
+        if (shakeDuration <= 0f) {
+            shakingCamera = false
+            shakeDuration = 0f
+        }
+    }
+        camera.update()
+
+    // Aufnahme der Kiste
     val chestIterator = chests.iterator()
     while (chestIterator.hasNext()) {
         val chest = chestIterator.next()
@@ -143,6 +188,7 @@ class GameSevenMain : ApplicationAdapter() {
                 if (loot != null) {
                     val chest = Chest(chestTexture, Vector2(enemy1X, enemy1Y), loot)
                     chests.add(chest)
+                    player.gainExperience(10)
                     println("Feind hat ${loot.name} fallen gelassen.")
                 } else {
                     println("Feind hat kein Item fallen gelassen.")
@@ -161,7 +207,7 @@ class GameSevenMain : ApplicationAdapter() {
         }
     }
 
-    // Rendern Sie Ihre Spielobjekte
+    // Rendern -----------------------------------------------------------------------------------
     batch.projectionMatrix = camera.combined
 
     batch.begin()
@@ -185,7 +231,7 @@ class GameSevenMain : ApplicationAdapter() {
 }
 
 //--------------------------------------------------------
-    override fun dispose() {
+    override fun dispose() { // Entfernt die Animationen
         batch.dispose()
         img.dispose()
         enemyTexture1.dispose()
@@ -198,13 +244,17 @@ class GameSevenMain : ApplicationAdapter() {
 
     fun createSampleLootTable(): LootTable {
         val commonItem = Item(name = "Common Item", type = ItemType.WEAPON, rarity = ItemRarity.COMMON, statBoosts = mapOf(), effects = listOf())
+        val uncommonItem = Item(name = "Uncommon Item", type = ItemType.WEAPON, rarity = ItemRarity.UNCOMMON, statBoosts = mapOf(), effects = listOf())
         val rareItem = Item(name = "Rare Item", type = ItemType.ARMOR, rarity = ItemRarity.RARE, statBoosts = mapOf(), effects = listOf())
+        val epicItem = Item(name = "Epic Item", type = ItemType.ARMOR, rarity = ItemRarity.EPIC, statBoosts = mapOf(), effects = listOf())
         val legendaryItem = Item(name = "Legendary Item", type = ItemType.ACCESSORY, rarity = ItemRarity.LEGENDARY, statBoosts = mapOf(), effects = listOf())
 
         val lootEntries = listOf(
-                LootEntry(commonItem, weight = 80),
-                LootEntry(rareItem, weight = 15),
-                LootEntry(legendaryItem, weight = 5)
+                LootEntry(commonItem, weight = 82.0),
+                LootEntry(uncommonItem, weight = 15.0),
+                LootEntry(rareItem, weight = 2.5),
+                LootEntry(epicItem, weight = 0.49),
+                LootEntry(legendaryItem, weight = 0.01)
         )
 
         return LootTable(lootEntries)
