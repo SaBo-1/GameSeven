@@ -21,6 +21,8 @@ class GameSevenMain : ApplicationAdapter() {
     private lateinit var enemy1: Enemy
     lateinit var bulletTexture: Texture
     val projectiles = mutableListOf<Projectile>()
+    private lateinit var chestTexture: Texture
+    val chests = mutableListOf<Chest>()
 
     // Startpunkt Einheiten
     var playerX = 450f
@@ -42,6 +44,7 @@ class GameSevenMain : ApplicationAdapter() {
         bulletTexture = Texture("greenbullet.png")
         crosshairTexture = Texture("crosshair.png")
         val playerSpriteSheet = Texture("one.png")
+        chestTexture = Texture("gemBlue.png")
         player = Player(playerSpriteSheet, 4,1,0.13f)
 
         val enemyTexture1 = Texture("two.png")
@@ -104,6 +107,18 @@ class GameSevenMain : ApplicationAdapter() {
 
     }
 
+    // Check collision with chests
+    val chestIterator = chests.iterator()
+    while (chestIterator.hasNext()) {
+        val chest = chestIterator.next()
+        if (player.collisionBox.overlaps(chest.collisionBox)) {
+            println("Spieler hat ${chest.item.name} aufgenommen.")
+            // Add the item to the player's inventory (not implemented in the provided code)
+            // player.inventory.addItem(chest.item)
+            chestIterator.remove() // Remove the chest from the list
+        }
+    }
+
     ScreenUtils.clear(1f, 0f, 0f, 1f)
 
     val mousePos = Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f)
@@ -126,6 +141,8 @@ class GameSevenMain : ApplicationAdapter() {
                 println("Feind ist tot!")
                 val loot = enemy1.dropItem()
                 if (loot != null) {
+                    val chest = Chest(chestTexture, Vector2(enemy1X, enemy1Y), loot)
+                    chests.add(chest)
                     println("Feind hat ${loot.name} fallen gelassen.")
                 } else {
                     println("Feind hat kein Item fallen gelassen.")
@@ -156,6 +173,14 @@ class GameSevenMain : ApplicationAdapter() {
         val frame = projectile.animation.getKeyFrame(playerStateTime, true)
         batch.draw(frame, projectile.position.x, projectile.position.y)
     }
+    projectiles.forEach { projectile ->
+        val frame = projectile.animation.getKeyFrame(playerStateTime, true)
+        batch.draw(frame, projectile.position.x, projectile.position.y)
+    }
+    // Render chests
+    chests.forEach { chest ->
+        batch.draw(chest.texture, chest.position.x, chest.position.y)
+    }
     batch.end()
 }
 
@@ -164,6 +189,7 @@ class GameSevenMain : ApplicationAdapter() {
         batch.dispose()
         img.dispose()
         enemyTexture1.dispose()
+        chestTexture.dispose()
     }
 
     fun openMenu () {
