@@ -11,49 +11,69 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 
 class GameSevenMain : ApplicationAdapter() {
-    private lateinit var batch: SpriteBatch
-    private lateinit var img: Texture
-    private lateinit var camera: OrthographicCamera
-    private lateinit var player: Player
-    private lateinit var crosshairTexture: Texture
-    private lateinit var enemyTexture1: Texture
-    private lateinit var enemy1: Enemy
-    lateinit var bulletTexture: Texture
+
+    // Warum Late Init?
+    // Er wird verwendet um, einer Eigenschaft die möglichkeit zu geben,
+    // später im code erstellt zu werden. Verbessert auch oft nur die Lesbarkeit.
+    private lateinit var batch: SpriteBatch // wird zu rendern mehrerer Sprites benötigt
+    private lateinit var img: Texture // Lässt Texturen Laden
+    private lateinit var camera: OrthographicCamera // erstellung der Kamera
+    private lateinit var player: Player // Erstellung des Spielers
+    private lateinit var crosshairTexture: Texture // Das Fadenkreuz
+    private lateinit var enemyTexture1: Texture // Die erste Gegner-Textur.
+    private lateinit var enemy1: Enemy // erstellt den ersten Gegner
+    private lateinit var bulletTexture: Texture // Die grüne Kugel Textur wird erstellt
+    private lateinit var chestTexture: Texture // Die Aktuellen Gems später Truhen Textur
+
+    // Die veränderbaren Listen von Truhe und fern Attacken
     val projectiles = mutableListOf<Projectile>()
-    private lateinit var chestTexture: Texture
     val chests = mutableListOf<Chest>()
-    // Variablen für Kamera-Shake
+
+    // Shake it Baby, lässt bei treffern die Kamera wackeln
     private var shakeDuration = 0f
     private val shakeDurationMax = 0.5f
     private val shakeIntensity = 10f
     private var shakingCamera = false
 
-    // Startpunkt Einheiten
+    // Startpunkt vom Spieler und der Gegner
     var playerX = 450f
     var playerY = 450f
     private var enemy1X = 300f
     private var enemy1Y = 300f
 
-
+    // Setzt die Spieler Zeit sowie den Vector fest am Anfang des Spiels ein.
     private var playerStateTime = 0f
     private var playerVelocity = Vector2(0f, 0f)
 
+    // Hier startet die Create Funktion.
+    // Was ist die Create Funktion?
+    // Grafiken, Sounds, Musik, Schriften und vieles mehr werden hier erstellt.
+    // Create kreieren trifft es am besten ^^
+    // irgendwie schon Selbsterklärend oder?
 //--------------------------------------------------------
     override fun create() {
-        batch = SpriteBatch()
-        camera = OrthographicCamera()
+        batch = SpriteBatch() // Lässt Animationen zu
+        camera = OrthographicCamera() // Erstellt die Kamera
+        // hier kann man, den Kamerawinkel quasi die Höhe bzw. Sichtwinkel einstellen.
         camera.setToOrtho(false, 800f, 480f)
 
+        // Der Hintergrund
         img = Texture("artwork.png")
+        // Die Aktuell eine grüne Kugel
         bulletTexture = Texture("greenbullet.png")
+        // Das Fadenkreuz
         crosshairTexture = Texture("crosshair.png")
+        // Die Optik des Spielers
         val playerSpriteSheet = Texture("one.png")
+        // Die aktuelle Kiste die ein Diamant ist
         chestTexture = Texture("gemBlue.png")
+        // Hier muss man die Frames des Sprites einstellen
         player = Player(playerSpriteSheet, 4,1,0.13f)
-
+        // Die Optik des Gegners
         val enemyTexture1 = Texture("two.png")
+        // Die Frames einstellung der Gegner Animation
         enemy1 = Enemy(enemyTexture1, 4, 1, 0.13f, moveSpeed = 1f, level = 10, lootTable = createSampleLootTable())
-        //Steuerung
+        // Hier wird die Steuerung vom InputProcessor geladen
         Gdx.input.inputProcessor = MyInputProcessor(this)
     }
 

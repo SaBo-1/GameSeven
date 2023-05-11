@@ -1,23 +1,25 @@
 package com.mygdx.game
 
+// Der Import von unter anderem BadLogic
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 
+// Die PLayer Klasse
 class Player(texture: Texture, frameCols: Int, frameRows: Int, animationDuration: Float) {
     var animation: Animation<TextureRegion>
 
     val collisionBox = Rectangle()
 
     // Vorhandene Attribute
-    var level: Int = 1
-    var hitPoints: Int = 100
-    var attack: Int = 10
-    var defense: Int = 5
-    var experience: Int = 0
-    val maxLevel: Int = 100
-    var initiative: Float = 1.0f
+    var level: Int = 1 // Start Level
+    var hitPoints: Int = 100 // Lebenspunkte auf Level eins
+    var attack: Int = 10 // Damage
+    var defense: Int = 5 // Verteidigungswert
+    var experience: Int = 0 // Erfahrung startet mit 0
+    val maxLevel: Int = 100 // Level grenze
+    var initiative: Float = 1.0f // Init wert wird durch Item erhöht
     var baseMoveSpeed: Float = 1f // Basisbewegungsgeschwindigkeit
     val moveSpeed: Float
         get() = baseMoveSpeed * initiative

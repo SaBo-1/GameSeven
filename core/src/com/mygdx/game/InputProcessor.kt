@@ -1,13 +1,15 @@
 package com.mygdx.game
 
+// Hier werden alles Funktionen Importiert
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.math.Vector2
 import kotlin.math.sqrt
 
+// Das ist die Main
 class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
 
-    // Hier kann die Spieler geschwindigkeit angepasst werden.
+    // Hier kann die Spieler Bewegungsgeschwindigkeit angepasst werden.
     private val playerSpeed = 150f
 
     // Boost oder Schub
@@ -17,6 +19,7 @@ class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
     // Speichert die gedrückten Tasten und ermöglicht ein seitwärts Bewegung.
     private val pressedKeys = HashSet<Int>()
 
+    // Beginn Steuerung
     private fun updatePlayerMovement() {
         var x = 0f
         var y = 0f
@@ -35,6 +38,7 @@ class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
         if (pressedKeys.contains(Input.Keys.RIGHT)) x += playerSpeed
 
         // Normalisiere die Geschwindigkeit, um eine gleichmäßige Geschwindigkeit in alle Richtungen zu gewährleisten
+        // sieht Komisch aus funktioniert aber^^
         if (x != 0f && y != 0f) {
             val length = sqrt(x * x + y * y)
             x /= length
@@ -52,6 +56,8 @@ class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
         game.movePlayer(x, y)
     }
 
+    // Hier wird die Tastatur eingabe überschrieben,
+    // damit nicht nur eine Taste auf einmal gedrückt werden kann.
     override fun keyDown(keycode: Int): Boolean {
         if (keycode in listOf(
                 Input.Keys.W,
@@ -80,6 +86,7 @@ class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
         return true
     }
 
+    // überschreiben beim Loslassen der Tastatur
     override fun keyUp(keycode: Int): Boolean {
         if (keycode in listOf(
                 Input.Keys.W,
@@ -95,6 +102,7 @@ class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
             updatePlayerMovement()
         }
 
+        // Boost, soll mal eine klassische Rolle werden.
         if (keycode == Input.Keys.SPACE) {
             isBoosting = false
             updatePlayerMovement()
@@ -103,33 +111,41 @@ class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
         return false
     }
 
+    // für später
     override fun keyTyped(character: Char): Boolean {
         return false
     }
 
-
+    // auch für später
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         return false
     }
 
+    // immer noch für später
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
         return false
     }
 
+    // wie man sieht, ist alles vorbereitet.
     override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
         return false
     }
 
+    // hier wird auch jeder Kommentar gelesen
     override fun scrolled(amountX: Float, amountY: Float): Boolean {
         return false
     }
 
+    // Die Kugel wir abgeschossen
+    // Aktuell nur eine der code ist für mehrere ausgelegt.
     private fun shootProjectile() {
         val playerPosition = Vector2(game.playerX, game.playerY)
         val mousePosition = game.getMouseWorldPosition()
         val direction = mousePosition.sub(playerPosition).nor()
+        // geschwindigkeit der Kugel
         val bulletSpeed = 500f
 
+        // Die Aktuelle eine Kugel
         val projectile = Projectile(
             game.bulletTexture,
             frameCols = 10,
@@ -142,6 +158,8 @@ class MyInputProcessor(private val game: GameSevenMain) : InputProcessor {
         game.projectiles.add(projectile)
     }
 
+    // Mit der Linken Maus Taste wird der Hauptangriff, abgeschossen
+    // nur einmal per KLick
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         if (button == Input.Buttons.LEFT) {
             shootProjectile()
