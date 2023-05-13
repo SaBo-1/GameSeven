@@ -21,7 +21,7 @@ class Enemy(
     //        Level Berechnung
     var hitPoints: Int = level * 20 // 20 Lebenspunkte pro Level
     var attack: Int = level * 2 // 2 Angriffspunkte pro Level
-    var defense: Int = level * 1 // 1 Verteidigungspunkt pro Level
+    private var defense: Int = level * 1 // 1 Verteidigungspunkt pro Level
 
     init {
         val tmp = TextureRegion.split(texture, texture.width / frameCols, texture.height / frameRows)

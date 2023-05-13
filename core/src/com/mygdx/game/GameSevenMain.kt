@@ -22,8 +22,8 @@ class GameSevenMain : ApplicationAdapter() {
     private lateinit var crosshairTexture: Texture // Das Fadenkreuz
     private lateinit var enemyTexture1: Texture // Die erste Gegner-Textur.
     private lateinit var enemy1: Enemy // erstellt den ersten Gegner
-    lateinit var bulletTexture: Texture // Die grüne Kugel Textur wird erstellt
     private lateinit var chestTexture: Texture // Die Aktuellen Gems später Truhen Textur
+    lateinit var bulletTexture: Texture // Die grüne Kugel Textur wird erstellt
 
     // Die veränderbaren Listen von Truhe und fern Attacken
     val projectiles = mutableListOf<Projectile>()
@@ -77,6 +77,7 @@ class GameSevenMain : ApplicationAdapter() {
         Gdx.input.inputProcessor = MyInputProcessor(this)
     }
 
+    // Render, Render, Render
 //--------------------------------------------------------
     override fun render() {
     super.render()
@@ -115,6 +116,7 @@ class GameSevenMain : ApplicationAdapter() {
     // Kollisionserkennung mit dem Enemy
     val collidedWithEnemy1 = player.collisionBox.overlaps(enemy1.collisionBox)
     if (collidedWithEnemy1) {
+
         // Kollision aufgetreten, führen Sie entsprechende Aktionen aus
         println("Kollision erkannt!")
         player.takeDamage(10)
@@ -165,7 +167,7 @@ class GameSevenMain : ApplicationAdapter() {
         camera.position.x += randomX
         camera.position.y += randomY
 
-        // Beende den Kamera-Shake, wenn die Dauer abgelaufen ist
+        // Beendet den Kamera-Shake, wenn die Dauer abgelaufen ist
         if (shakeDuration <= 0f) {
             shakingCamera = false
             shakeDuration = 0f
@@ -179,9 +181,8 @@ class GameSevenMain : ApplicationAdapter() {
         val chest = chestIterator.next()
         if (player.collisionBox.overlaps(chest.collisionBox)) {
             println("Spieler hat ${chest.item.name} aufgenommen.")
-            // Add the item to the player's inventory (not implemented in the provided code)
-            // player.inventory.addItem(chest.item)
-            chestIterator.remove() // Remove the chest from the list
+            // TODO // Item menu // verwaltung
+            chestIterator.remove()
         }
     }
 
@@ -251,6 +252,7 @@ class GameSevenMain : ApplicationAdapter() {
     batch.end()
 }
 
+    // Dispose ist eine Funktion die Animationen Entfernt
 //--------------------------------------------------------
     override fun dispose() { // Entfernt die Animationen
         batch.dispose()
@@ -263,7 +265,7 @@ class GameSevenMain : ApplicationAdapter() {
         println("Menü würde sich öffnen.")
     }
 
-    fun createSampleLootTable(): LootTable {
+    private fun createSampleLootTable(): LootTable {
         val commonItem = Item(name = "Common Item", type = ItemType.WEAPON, rarity = ItemRarity.COMMON, statBoosts = mapOf(), effects = listOf())
         val uncommonItem = Item(name = "Uncommon Item", type = ItemType.WEAPON, rarity = ItemRarity.UNCOMMON, statBoosts = mapOf(), effects = listOf())
         val rareItem = Item(name = "Rare Item", type = ItemType.ARMOR, rarity = ItemRarity.RARE, statBoosts = mapOf(), effects = listOf())
